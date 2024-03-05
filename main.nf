@@ -23,12 +23,6 @@ if ($HOSTNAME == "default"){
 }
 
 //* platform
-if ($HOSTNAME == "ig03.lnx.biu.ac.il"){
-    $DOCKER_IMAGE = "immcantation/suite:4.3.0"
-    $DOCKER_OPTIONS = "-v /work:/work"
-	$CPU  = 48
-    $MEMORY = 300 
-}
 //* platform
 
 
@@ -179,30 +173,30 @@ if (!params.umi_cluster_script){params.umi_cluster_script = ""}
 ch_empty_file_1 = file("$baseDir/.emptyfiles/NO_FILE_1", hidden:true)
 ch_empty_file_2 = file("$baseDir/.emptyfiles/NO_FILE_2", hidden:true)
 
-Channel.value(params.mate).into{g_1_mate_g_16;g_1_mate_g_26;g_1_mate_g9_7;g_1_mate_g9_5;g_1_mate_g9_0;g_1_mate_g22_14;g_1_mate_g22_12;g_1_mate_g22_10;g_1_mate_g37_9;g_1_mate_g49_0;g_1_mate_g49_11;g_1_mate_g49_7;g_1_mate_g52_8;g_1_mate_g52_1;g_1_mate_g52_0;g_1_mate_g38_9;g_1_mate_g38_12;g_1_mate_g38_11;g_1_mate_g28_15;g_1_mate_g28_19;g_1_mate_g28_12}
+Channel.value(params.mate).into{g_1_1_g_16;g_1_1_g_26;g_1_0_g9_7;g_1_1_g9_5;g_1_1_g9_0;g_1_1_g22_14;g_1_1_g22_12;g_1_1_g22_10;g_1_1_g37_9;g_1_1_g49_0;g_1_1_g49_11;g_1_1_g49_7;g_1_1_g52_8;g_1_1_g52_1;g_1_1_g52_0;g_1_0_g38_9;g_1_1_g38_12;g_1_0_g38_11;g_1_1_g28_15;g_1_1_g28_19;g_1_1_g28_12}
 if (params.reads){
 Channel
 	.fromFilePairs( params.reads , size: params.mate == "single" ? 1 : params.mate == "pair" ? 2 : params.mate == "triple" ? 3 : params.mate == "quadruple" ? 4 : -1 )
 	.ifEmpty { error "Cannot find any reads matching: ${params.reads}" }
-	.set{g_2_reads_g38_11}
+	.set{g_2_1_g38_11}
  } else {  
-	g_2_reads_g38_11 = Channel.empty()
+	g_2_1_g38_11 = Channel.empty()
  }
 
-g_17_umi_cluster_script_g_16 = file(params.umi_cluster_script, type: 'any')
+g_17_2_g_16 = file(params.umi_cluster_script, type: 'any')
 
 
 process Mask_Primer_MaskPrimers {
 
 input:
- val mate from g_1_mate_g38_11
- set val(name),file(reads) from g_2_reads_g38_11
+ val mate from g_1_0_g38_11
+ set val(name),file(reads) from g_2_1_g38_11
 
 output:
- set val(name), file("*_primers-pass.fastq")  into g38_11_reads0_g_26
+ set val(name), file("*_primers-pass.fastq")  into g38_11_reads00_g_26
  set val(name), file("*_primers-fail.fastq") optional true  into g38_11_reads_failed11
- set val(name), file("MP_*")  into g38_11_logFile2_g38_9
- set val(name),file("out*")  into g38_11_logFile3_g61_0
+ set val(name), file("MP_*")  into g38_11_logFile21_g38_9
+ set val(name),file("out*")  into g38_11_logFile30_g61_0
 
 script:
 method = params.Mask_Primer_MaskPrimers.method
@@ -276,8 +270,8 @@ if(mate=="pair"){
   
 
 
-	R1 = readArray.grep(~/.*R1.*/)[0]
-	R2 = readArray.grep(~/.*R2.*/)[0]
+	R1 = readArray[0]
+	R2 = readArray[1]
 	
 	R1_primers = (method[0]=="extract") ? "" : "-p ${R1_primers}"
 	R2_primers = (method[1]=="extract") ? "" : "-p ${R2_primers}"
@@ -290,7 +284,7 @@ if(mate=="pair"){
 	"""
 }else{
 	args_1 = args_values[0]
-	println args_1
+	
 	R1_primers = (method[0]=="extract") ? "" : "-p ${R1_primers}"
 	
 	R1 = readArray[0]
@@ -308,11 +302,11 @@ if(mate=="pair"){
 process PairAwk {
 
 input:
- set val(name), file(reads) from g38_11_reads0_g_26
- val mate from g_1_mate_g_26
+ set val(name), file(reads) from g38_11_reads00_g_26
+ val mate from g_1_1_g_26
 
 output:
- set val(name), file("*pair-pass.fastq")  into g_26_reads0_g9_0
+ set val(name), file("*pair-pass.fastq")  into g_26_reads00_g9_0
 
 script:
 umi_length = params.PairAwk.umi_length
@@ -423,14 +417,14 @@ if(mate=="pair"){
 process Filter_Sequence_Quality_filter_seq_quality {
 
 input:
- set val(name),file(reads) from g_26_reads0_g9_0
- val mate from g_1_mate_g9_0
+ set val(name),file(reads) from g_26_reads00_g9_0
+ val mate from g_1_1_g9_0
 
 output:
  set val(name), file("*_${method}-pass.fastq")  into g9_0_reads00
- set val(name), file("FS_*")  into g9_0_logFile1_g9_5
- set val(name), file("*_${method}-fail.fastq") optional true  into g9_0_reads2_g49_0
- set val(name),file("out*") optional true  into g9_0_logFile3_g61_0
+ set val(name), file("FS_*")  into g9_0_logFile10_g9_5
+ set val(name), file("*_${method}-fail.fastq") optional true  into g9_0_reads20_g49_0
+ set val(name),file("out*") optional true  into g9_0_logFile30_g61_0
 
 script:
 method = params.Filter_Sequence_Quality_filter_seq_quality.method
@@ -479,13 +473,13 @@ if(mate=="pair"){
 
 process Filter_Sequence_Quality_parse_log_FS {
 
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.tab$/) "FQ_log_table/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*table.tab$/) "FQ_log_table/$filename"}
 input:
- set val(name), file(log_file) from g9_0_logFile1_g9_5
- val mate from g_1_mate_g9_5
+ set val(name), file(log_file) from g9_0_logFile10_g9_5
+ val mate from g_1_1_g9_5
 
 output:
- set val(name), file("*.tab")  into g9_5_logFile0_g9_7
+ set val(name), file("*table.tab")  into g9_5_logFile01_g9_7
 
 script:
 readArray = log_file.toString()
@@ -500,11 +494,11 @@ ParseLog.py -l ${readArray}  -f ID QUALITY
 process Filter_Sequence_Quality_report_filter_Seq_Quality {
 
 input:
- val matee from g_1_mate_g9_7
- set val(name), file(log_files) from g9_5_logFile0_g9_7
+ val matee from g_1_0_g9_7
+ set val(name), file(log_files) from g9_5_logFile01_g9_7
 
 output:
- file "*.rmd"  into g9_7_rMarkdown0_g9_9
+ file "*.rmd"  into g9_7_rMarkdown00_g9_9
 
 
 shell:
@@ -628,7 +622,7 @@ process Filter_Sequence_Quality_render_rmarkdown {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.html$/) "FQ_report/$filename"}
 input:
- file rmk from g9_7_rMarkdown0_g9_9
+ file rmk from g9_7_rMarkdown00_g9_9
 
 output:
  file "*.html"  into g9_9_outputFileHTML00
@@ -647,11 +641,11 @@ process Mask_Primer_parse_log_MP {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.tab$/) "MP_log_table/$filename"}
 input:
- val mate from g_1_mate_g38_9
- set val(name), file(log_file) from g38_11_logFile2_g38_9
+ val mate from g_1_0_g38_9
+ set val(name), file(log_file) from g38_11_logFile21_g38_9
 
 output:
- set val(name), file("*.tab")  into g38_9_logFile0_g38_12
+ set val(name), file("*.tab")  into g38_9_logFile00_g38_12
 
 script:
 readArray = log_file.toString()	
@@ -666,11 +660,11 @@ ParseLog.py -l ${readArray}  -f ID PRIMER BARCODE ERROR
 process Mask_Primer_try_report_maskprimer {
 
 input:
- set val(name), file(primers) from g38_9_logFile0_g38_12
- val matee from g_1_mate_g38_12
+ set val(name), file(primers) from g38_9_logFile00_g38_12
+ val matee from g_1_1_g38_12
 
 output:
- file "*.rmd"  into g38_12_rMarkdown0_g38_16
+ file "*.rmd"  into g38_12_rMarkdown00_g38_16
 
 
 shell:
@@ -855,7 +849,7 @@ process Mask_Primer_render_rmarkdown {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.html$/) "MP_report_html/$filename"}
 input:
- file rmk from g38_12_rMarkdown0_g38_16
+ file rmk from g38_12_rMarkdown00_g38_16
 
 output:
  file "*.html"  into g38_16_outputFileHTML00
@@ -873,14 +867,14 @@ rmarkdown::render("${rmk}", clean=TRUE, output_format="html_document", output_di
 process Filter_Sequence_Length_filter_seq_quality {
 
 input:
- set val(name),file(reads) from g9_0_reads2_g49_0
- val mate from g_1_mate_g49_0
+ set val(name),file(reads) from g9_0_reads20_g49_0
+ val mate from g_1_1_g49_0
 
 output:
- set val(name), file("*_${method}-pass.fastq")  into g49_0_reads0_g_16
- set val(name), file("FS_*")  into g49_0_logFile1_g49_11
+ set val(name), file("*_${method}-pass.fastq")  into g49_0_reads00_g_16
+ set val(name), file("FS_*")  into g49_0_logFile10_g49_11
  set val(name), file("*_${method}-fail.fastq") optional true  into g49_0_reads22
- set val(name),file("out*") optional true  into g49_0_logFile3_g61_0
+ set val(name),file("out*") optional true  into g49_0_logFile30_g61_0
 
 script:
 method = params.Filter_Sequence_Length_filter_seq_quality.method
@@ -930,12 +924,12 @@ if(mate=="pair"){
 process Cluster_UMI {
 
 input:
- set val(name),file(reads) from g49_0_reads0_g_16
- val mate from g_1_mate_g_16
- file umi_cluster_script from g_17_umi_cluster_script_g_16
+ set val(name),file(reads) from g49_0_reads00_g_16
+ val mate from g_1_1_g_16
+ file umi_cluster_script from g_17_2_g_16
 
 output:
- set val(name),file("*_umi-pass.fastq") optional true  into g_16_reads0_g52_0
+ set val(name),file("*_umi-pass.fastq") optional true  into g_16_reads00_g52_0
 
 script:
 umi_field = params.Cluster_UMI.umi_field
@@ -971,11 +965,11 @@ process Filter_Sequence_Length_parse_log_FL {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.tab$/) "FL_log_table/$filename"}
 input:
- set val(name), file(log_file) from g49_0_logFile1_g49_11
- val mate from g_1_mate_g49_11
+ set val(name), file(log_file) from g49_0_logFile10_g49_11
+ val mate from g_1_1_g49_11
 
 output:
- set val(name), file("*.tab")  into g49_11_logFile0_g49_7
+ set val(name), file("*.tab")  into g49_11_logFile00_g49_7
 
 script:
 readArray = log_file.toString()
@@ -989,11 +983,11 @@ ParseLog.py -l ${readArray}  -f ID LENGTH
 process Filter_Sequence_Length_report_filter_Seq_Lenght {
 
 input:
- set val(name), file(log_files) from g49_11_logFile0_g49_7
- val matee from g_1_mate_g49_7
+ set val(name), file(log_files) from g49_11_logFile00_g49_7
+ val matee from g_1_1_g49_7
 
 output:
- file "*.rmd"  into g49_7_rMarkdown0_g49_9
+ file "*.rmd"  into g49_7_rMarkdown00_g49_9
 
 
 shell:
@@ -1107,7 +1101,7 @@ process Filter_Sequence_Length_render_rmarkdown {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.html$/) "FL_report/$filename"}
 input:
- file rmk from g49_7_rMarkdown0_g49_9
+ file rmk from g49_7_rMarkdown00_g49_9
 
 output:
  file "*.html"  into g49_9_outputFileHTML00
@@ -1125,14 +1119,14 @@ rmarkdown::render("${rmk}", clean=TRUE, output_format="html_document", output_di
 process Align_Sets_align_sets {
 
 input:
- set val(name),file(reads) from g_16_reads0_g52_0
- val mate from g_1_mate_g52_0
+ set val(name),file(reads) from g_16_reads00_g52_0
+ val mate from g_1_1_g52_0
 
 output:
- set val(name),file("*_align-pass.fastq")  into g52_0_reads0_g22_10
- set val(name), file("AS_*")  into g52_0_logFile1_g52_1
+ set val(name),file("*_align-pass.fastq")  into g52_0_reads00_g22_10
+ set val(name), file("AS_*")  into g52_0_logFile10_g52_1
  set val(name),file("*_align-fail.fastq") optional true  into g52_0_reads_failed22
- set val(name), file("out*") optional true  into g52_0_logFile3_g61_0
+ set val(name), file("out*") optional true  into g52_0_logFile30_g61_0
 
 script:
 method = params.Align_Sets_align_sets.method
@@ -1179,8 +1173,8 @@ if(method=="offset"){
 }
 
 if(mate=="pair"){
-	R1 = readArray.grep(~/.*R1.*/)[0]
-	R2 = readArray.grep(~/.*R2.*/)[0]
+	R1 = readArray[0]
+	R2 = readArray[1]
 	
 	
 	"""
@@ -1189,9 +1183,9 @@ if(mate=="pair"){
 	"""
 	
 }else{
-	
+	R1 = readArray[0]
 	"""
-	AlignSets.py ${method} -s ${readArray}[0] ${bf} ${muscle_exec_argv} ${div_arg} ${reverse_arg} ${failed_arg} ${pf} ${offset_table_argv} ${mode} ${primer_file_argv} --log AS_R1_${name}.log --nproc ${nproc} >> out_${R1}_AS.log
+	AlignSets.py ${method} -s ${R1} ${bf} ${muscle_exec_argv} ${div_arg} ${reverse_arg} ${failed_arg} ${pf} ${offset_table_argv} ${mode} ${primer_file_argv} --log AS_R1_${name}.log --nproc ${nproc} >> out_${R1}_AS.log
 	"""
 }
 
@@ -1247,13 +1241,13 @@ def args_creator_bc(barcode_field, primer_field, act, copy_field, mincount, minq
 process Build_Consensus_build_consensus {
 
 input:
- set val(name),file(reads) from g52_0_reads0_g22_10
- val mate from g_1_mate_g22_10
+ set val(name),file(reads) from g52_0_reads00_g22_10
+ val mate from g_1_1_g22_10
 
 output:
- set val(name),file("*_consensus-pass.fastq")  into g22_10_reads0_g37_9
- set val(name),file("BC*")  into g22_10_logFile1_g22_12
- set val(name),file("out*")  into g22_10_logFile2_g61_0
+ set val(name),file("*_consensus-pass.fastq")  into g22_10_reads00_g37_9
+ set val(name),file("BC*")  into g22_10_logFile10_g22_12
+ set val(name),file("out*")  into g22_10_logFile20_g61_0
 
 script:
 failed = params.Build_Consensus_build_consensus.failed
@@ -1309,12 +1303,12 @@ if(mate=="pair"){
 process Pair_Sequence_post_consensus_pair_seq {
 
 input:
- set val(name),file(reads) from g22_10_reads0_g37_9
- val mate from g_1_mate_g37_9
+ set val(name),file(reads) from g22_10_reads00_g37_9
+ val mate from g_1_1_g37_9
 
 output:
- set val(name),file("*_pair-pass.fastq")  into g37_9_reads0_g28_12
- set val(name),file("out*")  into g37_9_logFile1_g61_0
+ set val(name),file("*_pair-pass.fastq")  into g37_9_reads00_g28_12
+ set val(name),file("out*")  into g37_9_logFile10_g61_0
 
 script:
 coord = params.Pair_Sequence_post_consensus_pair_seq.coord
@@ -1332,8 +1326,8 @@ if(mate=="pair"){
 	copy_fields_2 = (copy_fields_2=="") ? "" : "--2f ${copy_fields_2}"
 	
 	readArray = reads.toString().split(' ')	
-	R1 = readArray.grep(~/.*R1.*/)[0]
-	R2 = readArray.grep(~/.*R2.*/)[0]
+	R1 = readArray[0]
+	R2 = readArray[1]
 	"""
 	PairSeq.py -1 ${R1} -2 ${R2} ${copy_fields_1} ${copy_fields_2} --coord ${coord} ${act} ${failed} >> out_${R1}_PS.log
 	"""
@@ -1352,14 +1346,14 @@ process Assemble_pairs_assemble_pairs {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_assemble-pass.f.*$/) "out_reads/$filename"}
 input:
- set val(name),file(reads) from g37_9_reads0_g28_12
- val mate from g_1_mate_g28_12
+ set val(name),file(reads) from g37_9_reads00_g28_12
+ val mate from g_1_1_g28_12
 
 output:
  set val(name),file("*_assemble-pass.f*")  into g28_12_reads00
- set val(name),file("AP_*")  into g28_12_logFile1_g28_15
+ set val(name),file("AP_*")  into g28_12_logFile10_g28_15
  set val(name),file("*_assemble-fail.f*") optional true  into g28_12_reads_failed22
- set val(name),file("out*")  into g28_12_logFile3_g61_0
+ set val(name),file("out*")  into g28_12_logFile30_g61_0
 
 script:
 method = params.Assemble_pairs_assemble_pairs.method
@@ -1385,6 +1379,7 @@ aligner = params.Assemble_pairs_assemble_pairs.aligner
 gap = params.Assemble_pairs_assemble_pairs.gap
 usearch_version = params.Assemble_pairs_assemble_pairs.usearch_version
 assemble_reference = params.Assemble_pairs_assemble_pairs.assemble_reference
+head_seqeunce_file = params.Assemble_pairs_assemble_pairs.head_seqeunce_file
 //* @style @condition:{method="align",alpha,maxerror,minlen,maxlen,scanrev}, {method="sequential",alpha,maxerror,minlen,maxlen,scanrev,ref_file,minident,evalue,maxhits,fill,aligner,align_exec,dbexec} {method="reference",ref_file,minident,evalue,maxhits,fill,aligner,align_exec,dbexec} {method="join",gap} @multicolumn:{method,coord,rc,head_fields_R1,head_fields_R2,failed,nrpoc,usearch_version},{alpha,maxerror,minlen,maxlen,scanrev}, {ref_file,minident,evalue,maxhits,fill,aligner,align_exec,dbexec}, {gap} 
 
 // args
@@ -1428,8 +1423,16 @@ readArray = reads.toString().split(' ')
 
 
 if(mate=="pair"){
-	R1 = readArray.grep(~/.*R1.*/)[0]
-	R2 = readArray.grep(~/.*R2.*/)[0]
+	R1 = readArray[0]
+	R2 = readArray[1]
+	
+	if(R1.contains("."+head_seqeunce_file)){
+		R1 = readArray[0]
+		R2 = readArray[1]
+	}else{
+		R2 = readArray[0]
+		R1 = readArray[1]
+	}
 	
 	"""
 	if [ "${method}" != "align" ]; then
@@ -1448,13 +1451,8 @@ if(mate=="pair"){
 		align_exec=""
 		dbexec=""
 	fi
-	
-	echo \$align_exec
-	echo \$dbexec
-	
-	
-	
-	AssemblePairs.py ${method} -1 ${R1} -2 ${R2} ${coord} ${rc} ${head_fields_R1} ${head_fields_R2} ${args} \$align_exec \$dbexec ${fasta} ${failed} --log AP_${name}.log ${nproc} >> out_${R1}_AP.log
+
+	AssemblePairs.py ${method} -1 ${R1} -2 ${R2} ${coord} ${rc} ${head_fields_R1} ${head_fields_R2} ${args} \$align_exec \$dbexec ${fasta} ${failed} --log AP_${name}.log ${nproc}  2>&1 | tee out_${R1}_AP.log
 	"""
 
 }else{
@@ -1471,11 +1469,11 @@ process Assemble_pairs_parse_log_AP {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.tab$/) "AP_log_table/$filename"}
 input:
- set val(name),file(log_file) from g28_12_logFile1_g28_15
- val mate from g_1_mate_g28_15
+ set val(name),file(log_file) from g28_12_logFile10_g28_15
+ val mate from g_1_1_g28_15
 
 output:
- set val(name),file("*.tab")  into g28_15_logFile0_g28_19
+ set val(name),file("*.tab")  into g28_15_logFile00_g28_19
 
 script:
 field_to_parse = params.Assemble_pairs_parse_log_AP.field_to_parse
@@ -1492,11 +1490,11 @@ ParseLog.py -l ${readArray}  -f ${field_to_parse}
 process Assemble_pairs_report_assemble_pairs {
 
 input:
- set val(name),file(log_files) from g28_15_logFile0_g28_19
- val matee from g_1_mate_g28_19
+ set val(name),file(log_files) from g28_15_logFile00_g28_19
+ val matee from g_1_1_g28_19
 
 output:
- file "*.rmd"  into g28_19_rMarkdown0_g28_22
+ file "*.rmd"  into g28_19_rMarkdown00_g28_22
 
 
 
@@ -1618,7 +1616,7 @@ process Assemble_pairs_render_rmarkdown {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.html$/) "AP_report/$filename"}
 input:
- file rmk from g28_19_rMarkdown0_g28_22
+ file rmk from g28_19_rMarkdown00_g28_22
 
 output:
  file "*.html"  into g28_22_outputFileHTML00
@@ -1637,11 +1635,11 @@ process Build_Consensus_parse_log_BC {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.tab$/) "BC_log_table/$filename"}
 input:
- set val(name),file(log_file) from g22_10_logFile1_g22_12
- val mate from g_1_mate_g22_12
+ set val(name),file(log_file) from g22_10_logFile10_g22_12
+ val mate from g_1_1_g22_12
 
 output:
- set val(name),file("*.tab")  into g22_12_logFile0_g22_14
+ set val(name),file("*.tab")  into g22_12_logFile00_g22_14
 
 script:
 readArray = log_file.toString()
@@ -1656,11 +1654,11 @@ ParseLog.py -l ${readArray} -f BARCODE SEQCOUNT CONSCOUNT PRCONS PRFREQ ERROR
 process Build_Consensus_report_Build_Consensus {
 
 input:
- set val(name),file(log_files) from g22_12_logFile0_g22_14
- val matee from g_1_mate_g22_14
+ set val(name),file(log_files) from g22_12_logFile00_g22_14
+ val matee from g_1_1_g22_14
 
 output:
- file "*.rmd"  into g22_14_rMarkdown0_g22_16
+ file "*.rmd"  into g22_14_rMarkdown00_g22_16
 
 
 
@@ -1867,7 +1865,7 @@ process Build_Consensus_render_rmarkdown {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.html$/) "BC_report/$filename"}
 input:
- file rmk from g22_14_rMarkdown0_g22_16
+ file rmk from g22_14_rMarkdown00_g22_16
 
 output:
  file "*.html"  into g22_16_outputFileHTML00
@@ -1886,11 +1884,11 @@ process Align_Sets_parse_log_AS {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.tab$/) "AS_log_table/$filename"}
 input:
- set val(name), file(log_file) from g52_0_logFile1_g52_1
- val mate from g_1_mate_g52_1
+ set val(name), file(log_file) from g52_0_logFile10_g52_1
+ val mate from g_1_1_g52_1
 
 output:
- set val(name), file("*.tab")  into g52_1_logFile0_g52_8
+ set val(name), file("*.tab")  into g52_1_logFile00_g52_8
 
 script:
 field_to_parse = params.Align_Sets_parse_log_AS.field_to_parse
@@ -1906,11 +1904,11 @@ ParseLog.py -l ${readArray}  -f ${field_to_parse}
 process Align_Sets_report_Align_Sets {
 
 input:
- set val(name), file(log_files) from g52_1_logFile0_g52_8
- val matee from g_1_mate_g52_8
+ set val(name), file(log_files) from g52_1_logFile00_g52_8
+ val matee from g_1_1_g52_8
 
 output:
- file "*.rmd"  into g52_8_rMarkdown0_g52_9
+ file "*.rmd"  into g52_8_rMarkdown00_g52_9
 
 
 shell:
@@ -2029,7 +2027,7 @@ process Align_Sets_render_rmarkdown {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.html$/) "AS_report/$filename"}
 input:
- file rmk from g52_8_rMarkdown0_g52_9
+ file rmk from g52_8_rMarkdown00_g52_9
 
 output:
  file "*.html"  into g52_9_outputFileHTML00
@@ -2047,16 +2045,16 @@ rmarkdown::render("${rmk}", clean=TRUE, output_format="html_document", output_di
 process make_report_pipeline_cat_all_file {
 
 input:
- set val(name), file(log_file) from g9_0_logFile3_g61_0
- set val(name), file(log_file) from g49_0_logFile3_g61_0
- set val(name), file(log_file) from g52_0_logFile3_g61_0
- set val(name), file(log_file) from g22_10_logFile2_g61_0
- set val(name), file(log_file) from g37_9_logFile1_g61_0
- set val(name), file(log_file) from g38_11_logFile3_g61_0
- set val(name), file(log_file) from g28_12_logFile3_g61_0
+ set val(name), file(log_file) from g9_0_logFile30_g61_0
+ set val(name), file(log_file) from g49_0_logFile30_g61_0
+ set val(name), file(log_file) from g52_0_logFile30_g61_0
+ set val(name), file(log_file) from g22_10_logFile20_g61_0
+ set val(name), file(log_file) from g37_9_logFile10_g61_0
+ set val(name), file(log_file) from g38_11_logFile30_g61_0
+ set val(name), file(log_file) from g28_12_logFile30_g61_0
 
 output:
- set val(name), file("all_out_file.log")  into g61_0_logFile0_g61_2
+ set val(name), file("all_out_file.log")  into g61_0_logFile00_g61_2
 
 script:
 readArray = log_file.toString()
@@ -2073,10 +2071,10 @@ cat out* >> all_out_file.log
 process make_report_pipeline_report_pipeline {
 
 input:
- set val(name), file(log_files) from g61_0_logFile0_g61_2
+ set val(name), file(log_files) from g61_0_logFile00_g61_2
 
 output:
- file "*.rmd"  into g61_2_rMarkdown0_g61_1
+ file "*.rmd"  into g61_2_rMarkdown00_g61_1
 
 
 shell:
@@ -2144,10 +2142,10 @@ process make_report_pipeline_render_rmarkdown {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.html$/) "out_report/$filename"}
 input:
- file rmk from g61_2_rMarkdown0_g61_1
+ file rmk from g61_2_rMarkdown00_g61_1
 
 output:
- file "*.html"  into g61_1_outputFileHTML0_g_62
+ file "*.html"  into g61_1_outputFileHTML02_g_62
 
 """
 
@@ -2162,7 +2160,7 @@ rmarkdown::render("${rmk}", clean=TRUE, output_format="html_document", output_di
 process zip_work_dir {
 
 input:
- file file from g61_1_outputFileHTML0_g_62
+ file file from g61_1_outputFileHTML02_g_62
 
 
 script:
